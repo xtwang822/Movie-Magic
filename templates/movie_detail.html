@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>{{ movie.title }}</h2>
+<p>{{ movie.overview }}</p>
+{% if movie.poster_path %}
+    <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="Poster">
+{% endif %}
+
+{% if details %}
+    <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
+    <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
+{% endif %}
+
+{% if trailer_link %}
+    <p>
+        <strong>Trailer:</strong>
+        <a href="{{ trailer_link }}" target="_blank">Watch on YouTube</a>
+    </p>
+{% endif %}
+
+<h3>Cast</h3>
+<ul>
+    {% for person in cast %}
+        <li>{{ person.name }} as {{ person.character }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Crew</h3>
+<ul>
+    {% for person in crew %}
+        <li>{{ person.name }} ({{ person.job }})</li>
+    {% endfor %}
+</ul>
+
+<button onclick="addFavorite({{ movie.id }})">Add to Favorites</button>
+<script>
+function addFavorite(movieId) {
+    firebase.auth().currentUser.getIdToken(true)
+      .then(function(idToken) {
+        fetch(`/favorite/${movieId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + idToken
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message || data.error || "Action completed");
+        })
+        .catch(err => console.error(err));
+      })
+      .catch(function(error) {
+        alert("You need to be signed in to favorite a movie!");
+      });
+}
+</script>
+{% endblock %}

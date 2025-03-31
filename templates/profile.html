@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Your Favorites</h2>
+{% if favorites and favorites|length > 0 %}
+<ul>
+    {% for fav in favorites %}
+    <li>
+        <strong>{{ fav.title }}</strong><br>
+        {% if fav.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w200{{ fav.poster_path }}" alt="Poster"><br>
+        {% endif %}
+        <a href="{{ url_for('movie_detail', movie_id=fav.id) }}">View Details</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>You have no favorite movies yet.</p>
+{% endif %}
+{% endblock %}

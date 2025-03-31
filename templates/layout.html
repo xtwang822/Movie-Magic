@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Magic Demo</title>
+
+    <!-- ✅ Load Firebase v8 (Browser-Compatible) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <!-- ✅ Load our Firebase logic AFTER Firebase is available -->
+    <script defer src="{{ url_for('static', filename='firebase.js') }}"></script>
+</head>
+<body>
+    <h1>Movie Magic</h1>
+
+    <nav>
+        <a href="/">Home</a>
+        <span id="user-info"></span> <!-- This will be updated by Firebase -->
+    </nav>
+
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

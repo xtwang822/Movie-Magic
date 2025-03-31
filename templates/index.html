@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Popular Movies</h2>
+<ul>
+    {% for movie in movies %}
+    <li>
+        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+            <strong>{{ movie.title }}</strong>
+        </a> - {{ movie.release_date }}
+        <br>
+        {{ movie.overview|length > 120 and movie.overview[:120] ~ '...' or movie.overview }}
+        <br>
+        {% if movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" alt="{{ movie.title }} poster"><br>
+        {% endif %}
+        <button onclick="addFavorite({{ movie.id }})">Add to Favorites</button>
+        <hr>
+    </li>
+    {% endfor %}
+</ul>
+<script>
+function addFavorite(movieId) {
+    // We'll call the backend route /favorite/<movie_id> with POST
+    // Include our Firebase ID token in the Authorization header
+
+    // We'll get the current user from Firebase
+    firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+      .then(function(idToken) {
+        fetch(`/favorite/${movieId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + idToken
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message || data.error || "Action completed");
+        })
+        .catch(err => console.error(err));
+      })
+      .catch(function(error) {
+        alert("You need to be signed in to favorite a movie!");
+      });
+}
+</script>
+{% endblock %}
