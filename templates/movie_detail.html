@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="font-size: 2rem;">{{ movie.title }}</h2>
-<p style="font-size: 1rem; color: #555;">{{ movie.overview }}</p>
+<h2 style="font-size: 2.5rem; margin-bottom: 1rem;">{{ movie.title }}</h2>
+
+<p style="font-size: 1.3rem; color: #555; max-width: 800px;">{{ movie.overview }}</p>
 
 {% if movie.poster_path %}
-    <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="Poster" style="border-radius: 10px;">
+    <img src="https://image.tmdb.org/t/p/w400{{ movie.poster_path }}" alt="Poster" style="border-radius: 10px; margin: 1.5rem 0;">
 {% endif %}
 
-<div style="margin-top: 1rem;">
+<div style="margin-top: 1rem; font-size: 1.2rem;">
     {% if details %}
         <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
         <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
@@ -16,20 +17,20 @@
     {% if trailer_link %}
         <p>
             <strong>Trailer:</strong>
-            <a href="{{ trailer_link }}" target="_blank" style="color: #2980b9;">Watch on YouTube</a>
+            <a href="{{ trailer_link }}" target="_blank" style="color: #2980b9; font-weight: bold;">Watch on YouTube</a>
         </p>
     {% endif %}
 </div>
 
-<h3>🎭 Cast</h3>
-<ul>
+<h3 style="font-size: 1.8rem; margin-top: 2rem;">🎭 Cast</h3>
+<ul style="font-size: 1.2rem;">
     {% for person in cast %}
         <li>{{ person.name }} as {{ person.character }}</li>
     {% endfor %}
 </ul>
 
-<h3>🎬 Crew</h3>
-<ul>
+<h3 style="font-size: 1.8rem; margin-top: 2rem;">🎬 Crew</h3>
+<ul style="font-size: 1.2rem;">
     {% for person in crew %}
         <li>{{ person.name }} ({{ person.job }})</li>
     {% endfor %}
@@ -37,7 +38,16 @@
 
 <button
     onclick="addFavorite({{ movie.id }})"
-    style="margin-top: 1rem; padding: 0.6rem 1.2rem; background-color: #e67e22; color: white; border: none; border-radius: 6px; cursor: pointer;">
+    style="
+        margin-top: 2rem;
+        padding: 1rem 1.6rem;
+        background-color: #e67e22;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.2rem;
+    ">
     ⭐ Add to Favorites
 </button>
 
