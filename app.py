@@ -5,29 +5,26 @@ import sqlite3
 import firebase_admin
 import requests
 from firebase_admin import credentials, auth
-from flask import Flask, render_template, request, jsonify, g
-
+from flask import Flask, render_template, request, g
 from flask import jsonify
-
-
 
 app = Flask(__name__)
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_fallback_key")
 
-# ✅ Load Firebase Admin SDK
+# Load Firebase Admin SDK
 cred_path = os.path.join(os.path.dirname(__file__), "firebase_admin_sdk.json")
 cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
 
-# ✅ TMDb API Configuration
+# TMDb API Configuration
 tmdb_key = os.getenv("TMDB_API_KEY")
 
-# ✅ Load API key from environment variables
+# Load API key from environment variables
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
-# ✅ Helper function to verify Firebase ID Token
+# Helper function to verify Firebase ID Token
 def verify_firebase_token(id_token):
     try:
         decoded_token = auth.verify_id_token(id_token)
@@ -36,25 +33,12 @@ def verify_firebase_token(id_token):
         print("Error verifying Firebase token:", e)
         return None
 
-# ✅ Middleware to check user authentication
-# @app.before_request
-# def check_auth():
-#     token = request.args.get("token")  # Get token from URL query
-#     if token:
-#         user_data = verify_firebase_token(token)
-#         if user_data:
-#             g.user = user_data  # Store user info in Flask's global `g`
-#         else:
-#             g.user = None  # Invalid token
-#     else:
-#         g.user = None  # No token provided
-
 @app.before_request
 def check_auth():
     """Check for Firebase Authentication token in Authorization Header."""
     g.user = None  # Default: No authenticated user
 
-    auth_header = request.headers.get("Authorization")  # ✅ Get the token from headers
+    auth_header = request.headers.get("Authorization")  # Get the token from headers
     if auth_header and auth_header.startswith("Bearer "):
         id_token = auth_header.split(" ")[1]  # Extract the token
         user_data = verify_firebase_token(id_token)
@@ -62,7 +46,7 @@ def check_auth():
             g.user = user_data  # Store user info in Flask's `g`
 
 
-# ✅ Helper function to get DB connection
+# Helper function to get DB connection
 def get_db_connection():
     conn = sqlite3.connect("movies.db")
     conn.row_factory = sqlite3.Row
@@ -79,10 +63,10 @@ def firebase_config():
         "appId": os.getenv("FIREBASE_APP_ID")
     }
     if not config["apiKey"]:
-        return jsonify({"error": "Firebase config missing!"}), 500  # ✅ Log error if missing
+        return jsonify({"error": "Firebase config missing!"}), 500  # Log error if missing
     return jsonify(config)
 
-# ✅ Home Route: List movies from the database
+# Home Route: List movies from the database
 @app.route("/")
 def index():
     conn = get_db_connection()
@@ -90,7 +74,7 @@ def index():
     conn.close()
     return render_template("index.html", movies=movies)
 
-# ✅ Movie Detail Route: Fetches movie details from TMDb in real-time
+# Movie Detail Route: Fetches movie details from TMDb in real-time
 @app.route("/movie/<int:movie_id>")
 def movie_detail(movie_id):
     conn = get_db_connection()
@@ -119,11 +103,11 @@ def movie_detail(movie_id):
 
     return render_template("movie_detail.html", movie=movie, details=details_resp, cast=cast, crew=crew, trailer_link=trailer_link)
 
-# ✅ Profile Route: Shows favorite movies for authenticated users
+# Profile Route: Shows favorite movies for authenticated users
 @app.route("/profile")
 def profile():
     if not g.user:
-        return "You must be logged in to see your profile.", 401  # ✅ Return 401 for unauthorized users
+        return "You must be logged in to see your profile.", 401  # Return 401 for unauthorized users
 
     firebase_uid = g.user["uid"]
     conn = get_db_connection()
@@ -137,7 +121,7 @@ def profile():
 
     return render_template("profile.html", favorites=favorites, user=g.user)
 
-# ✅ Add Favorite Route: Allows users to save favorite movies
+# Add Favorite Route: Allows users to save favorite movies
 @app.route("/favorite/<int:movie_id>", methods=["POST"])
 def add_favorite(movie_id):
     if not g.user:
@@ -162,7 +146,7 @@ def add_favorite(movie_id):
 
     return jsonify({"message": "Movie added to favorites!"}), 200
 
-# ✅ Remove Favorite Route: Allows users to remove favorites
+# Remove Favorite Route: Allows users to remove favorites
 @app.route("/favorite/remove/<int:movie_id>", methods=["POST"])
 def remove_favorite(movie_id):
     if not g.user:
@@ -176,6 +160,6 @@ def remove_favorite(movie_id):
 
     return jsonify({"message": "Movie removed from favorites"}), 200
 
-# ✅ Run Flask App
+# Run Flask App
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,38 +1,46 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>{{ movie.title }}</h2>
-<p>{{ movie.overview }}</p>
+<h2 style="font-size: 2rem;">{{ movie.title }}</h2>
+<p style="font-size: 1rem; color: #555;">{{ movie.overview }}</p>
+
 {% if movie.poster_path %}
-    <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="Poster">
+    <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="Poster" style="border-radius: 10px;">
 {% endif %}
 
-{% if details %}
-    <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
-    <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
-{% endif %}
+<div style="margin-top: 1rem;">
+    {% if details %}
+        <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
+        <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
+    {% endif %}
 
-{% if trailer_link %}
-    <p>
-        <strong>Trailer:</strong>
-        <a href="{{ trailer_link }}" target="_blank">Watch on YouTube</a>
-    </p>
-{% endif %}
+    {% if trailer_link %}
+        <p>
+            <strong>Trailer:</strong>
+            <a href="{{ trailer_link }}" target="_blank" style="color: #2980b9;">Watch on YouTube</a>
+        </p>
+    {% endif %}
+</div>
 
-<h3>Cast</h3>
+<h3>🎭 Cast</h3>
 <ul>
     {% for person in cast %}
         <li>{{ person.name }} as {{ person.character }}</li>
     {% endfor %}
 </ul>
 
-<h3>Crew</h3>
+<h3>🎬 Crew</h3>
 <ul>
     {% for person in crew %}
         <li>{{ person.name }} ({{ person.job }})</li>
     {% endfor %}
 </ul>
 
-<button onclick="addFavorite({{ movie.id }})">Add to Favorites</button>
+<button
+    onclick="addFavorite({{ movie.id }})"
+    style="margin-top: 1rem; padding: 0.6rem 1.2rem; background-color: #e67e22; color: white; border: none; border-radius: 6px; cursor: pointer;">
+    ⭐ Add to Favorites
+</button>
+
 <script>
 function addFavorite(movieId) {
     firebase.auth().currentUser.getIdToken(true)
@@ -46,12 +54,15 @@ function addFavorite(movieId) {
         })
         .then(response => response.json())
         .then(data => {
-          alert(data.message || data.error || "Action completed");
+          alert(data.message || data.error || "Movie added to favorites!");
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+          console.error(err);
+          alert("Failed to add favorite.");
+        });
       })
       .catch(function(error) {
-        alert("You need to be signed in to favorite a movie!");
+        alert("Sign in to use this feature!");
       });
 }
 </script>

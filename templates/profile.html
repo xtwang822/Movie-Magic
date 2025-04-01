@@ -1,19 +1,20 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Your Favorites</h2>
+<h2 style="font-size: 2rem;">❤️ Your Favorites</h2>
+
 {% if favorites and favorites|length > 0 %}
-<ul>
+<ul style="list-style-type: none; padding: 0;">
     {% for fav in favorites %}
-    <li>
-        <strong>{{ fav.title }}</strong><br>
+    <li style="margin-bottom: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 1rem;">
+        <strong style="font-size: 1.25rem;">{{ fav.title }}</strong><br>
         {% if fav.poster_path %}
-            <img src="https://image.tmdb.org/t/p/w200{{ fav.poster_path }}" alt="Poster"><br>
+            <img src="https://image.tmdb.org/t/p/w200{{ fav.poster_path }}" alt="Poster" style="margin: 0.5rem 0; border-radius: 10px;"><br>
         {% endif %}
-        <a href="{{ url_for('movie_detail', movie_id=fav.id) }}">View Details</a>
+        <a href="{{ url_for('movie_detail', movie_id=fav.id) }}" style="color: #2980b9;">View Details</a>
     </li>
     {% endfor %}
 </ul>
 {% else %}
-<p>You have no favorite movies yet.</p>
+<p style="color: #999;">You have no favorite movies yet. Go explore!</p>
 {% endif %}
 {% endblock %}

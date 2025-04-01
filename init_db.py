@@ -2,7 +2,7 @@ import sqlite3
 import requests
 import os
 
-# ✅ Load API key from environment variables
+# Load API key from environment variables
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 def create_tables():

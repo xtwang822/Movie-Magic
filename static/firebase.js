@@ -6,7 +6,7 @@ fetch('/firebase-config')
           throw new Error("Invalid Firebase configuration received.");
       }
 
-      console.log("✅ Firebase config loaded:", config);
+      console.log("Firebase config loaded:", config);
 
       if (!firebase.apps.length) {
           firebase.initializeApp(config);
@@ -19,7 +19,7 @@ fetch('/firebase-config')
               userInfoDiv.innerHTML = `
                   Logged in as: ${user.email}
                   <button onclick="logout()">Sign Out</button>
-                  <a href="#" onclick="goToProfile()">My Profile</a>
+                  <a href="#" onclick="goToProfile()">Favorites</a>
               `;
           } else {
               userInfoDiv.innerHTML = `
@@ -29,36 +29,33 @@ fetch('/firebase-config')
       });
   })
   .catch(error => {
-      console.error("🔥 Error loading Firebase config:", error);
+      console.error("Error loading Firebase config:", error);
   });
 
 
 
-// ✅ Initialize Firebase (ensure it's only initialized once)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// ✅ Handle authentication state changes
 firebase.auth().onAuthStateChanged((user) => {
     const userInfoDiv = document.getElementById("user-info");
 
     if (user) {
-        // 🔹 If logged in, show email + logout + profile
+        // If logged in, show email + logout + profile
         userInfoDiv.innerHTML = `
       Logged in as: ${user.email}
       <button onclick="logout()">Sign Out</button>
       <a href="/profile">My Profile</a>
     `;
     } else {
-        // 🔹 If NOT logged in, show login button
+        // If NOT logged in, show login button
         userInfoDiv.innerHTML = `
       <button onclick="showLoginPrompt()">Sign In / Register</button>
     `;
     }
 });
 
-// ✅ Logout function
 function logout() {
     firebase.auth().signOut().then(() => {
         alert("You have been logged out.");
@@ -66,7 +63,6 @@ function logout() {
     });
 }
 
-// ✅ Show login/register prompt
 function showLoginPrompt() {
     const email = prompt("Enter your email:");
     const password = prompt("Enter your password:");
@@ -96,7 +92,7 @@ function goToProfile() {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${idToken}`  // ✅ Send token in header
+                    "Authorization": `Bearer ${idToken}`
                 }
             })
                 .then(response => {
@@ -104,11 +100,11 @@ function goToProfile() {
                         alert("You need to be signed in to access your profile.");
                         return;
                     }
-                    return response.text();  // ✅ Get response as text (HTML)
+                    return response.text();
                 })
                 .then(html => {
                     if (html) {
-                        document.body.innerHTML = html;  // ✅ Load profile page dynamically
+                        document.body.innerHTML = html;
                     }
                 })
                 .catch(error => {
@@ -123,19 +119,19 @@ function goToProfile() {
 }
 
 
-// ✅ Handle authentication state changes
+// Handle authentication state changes
 firebase.auth().onAuthStateChanged((user) => {
     const userInfoDiv = document.getElementById("user-info");
 
     if (user) {
-        // 🔹 Show profile link and logout button
+        // Show profile link and logout button
         userInfoDiv.innerHTML = `
       Logged in as: ${user.email}
       <button onclick="logout()">Sign Out</button>
       <a href="#" onclick="goToProfile()">My Profile</a>
     `;
     } else {
-        // 🔹 Show login button
+        // Show login button
         userInfoDiv.innerHTML = `
       <button onclick="showLoginPrompt()">Sign In / Register</button>
     `;
@@ -149,7 +145,7 @@ function addFavorite(movieId) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${idToken}`  // ✅ Ensure the token is sent
+                    "Authorization": `Bearer ${idToken}`
                 }
             })
                 .then(response => response.json())
@@ -157,7 +153,7 @@ function addFavorite(movieId) {
                     if (data.error) {
                         alert("Error: " + data.error);
                     } else {
-                        alert("✅ " + data.message);
+                        alert(" " + data.message);
                     }
                 })
                 .catch(err => console.error("Request failed:", err));

@@ -16,7 +16,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Frontend       | Backend      | Database | Auth        | External API |
 |----------------|--------------|----------|-------------|---------------|
@@ -24,7 +24,7 @@
 
 ---
 
-## 📦 Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the Repository
 
@@ -62,13 +62,13 @@ FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 FIREBASE_APP_ID=your_app_id
 ```
 
-## 🧪 Run the App
+## 5. Run the App
 ```bash
 python app.py
 ```
 Navigate to http://127.0.0.1:5000 in your browser.
 
-## 🔧 Database Schema
+## Database Schema
 Tables:
 movies — contains movie metadata
 favorites — tracks user favorites (by Firebase UID + movie ID)
@@ -76,7 +76,7 @@ users — contains users
 
 You can initialize the database with your own script or seed manually.
 
-## 🔐 Authentication
+## Authentication
 Authentication is handled entirely via Firebase. ID tokens are sent via Authorization headers to protect private routes like /profile, /favorite/<id>, etc.
 
 
