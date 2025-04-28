@@ -1,30 +1,166 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="font-size: 2rem;">❤️ Your Favorites</h2>
+
+<h2 class="fav-heading">❤️ Your&nbsp;Favorites</h2>
 
 {% if favorites and favorites|length > 0 %}
-<ul style="list-style-type: none; padding: 0;">
-  {% for fav in favorites %}
-    <li style="margin-bottom: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 1rem;">
-      <strong style="font-size: 1.25rem;">{{ fav.title }}</strong><br>
+<div class="fav-grid">
+    {% for fav in favorites %}
+    <div class="fav-card animate-in">
+        {% if fav.poster_path %}
+        <img
+                src="https://image.tmdb.org/t/p/w300{{ fav.poster_path }}"
+                alt="{{ fav.title }} poster"
+                class="fav-poster"
+        >
+        {% else %}
+        <div class="poster-placeholder">No&nbsp;image</div>
+        {% endif %}
 
-      {% if fav.poster_path %}
-        <img src="https://image.tmdb.org/t/p/w200{{ fav.poster_path }}"
-             alt="Poster"
-             style="margin: 0.5rem 0; border-radius: 10px;"><br>
-      {% endif %}
+        <h3 class="fav-title">{{ fav.title }}</h3>
 
-      <a href="{{ url_for('movie_detail', movie_id=fav.id) }}" style="color: #2980b9;">View Details</a>
+        <div class="fav-actions">
+            <a href="{{ url_for('movie_detail', movie_id=fav.id) }}" class="details-link">
+                Details
+            </a>
 
-      <button onclick="removeFavorite({{ fav.id }})"
-              style="margin-left: 1rem;padding:0.3rem 0.75rem;
-                     background:#e74c3c;color:#fff;border:none;border-radius:6px;cursor:pointer;">
-        Remove
-      </button>
-    </li>
-  {% endfor %}
-</ul>
+            <button onclick="removeFavorite({{ fav.id }})" class="remove-btn">
+                Remove
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% else %}
-  <p style="color:#999;">You have no favorite movies yet. Go explore!</p>
+<p class="empty-msg">
+    You haven’t saved any favorites yet. Start exploring and add some! ⭐
+</p>
 {% endif %}
+
+
+<style>
+    :root {
+        font-size: 20px;
+        --primary: #2ecc71;
+        --danger: #e74c3c;
+        --text: #2c3e50;
+        --muted: #9aa0a6;
+        --shadow: 0 6px 14px rgba(0, 0, 0, .12);
+        --radius: 14px;
+    }
+
+    @media (max-width: 600px) {
+        :root {
+            font-size: 18px;
+        }
+    }
+
+    .fav-heading {
+        font-size: 2.2rem;
+        margin-bottom: 1.8rem;
+        color: var(--text);
+    }
+
+    .fav-grid {
+        display: grid;
+        grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+        gap: 2rem;
+        padding: 0;
+        margin: 0;
+    }
+
+    .fav-card {
+        background: #fff;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+
+    .fav-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 22px rgba(0, 0, 0, .18);
+    }
+
+    .fav-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        object-fit: cover;
+    }
+
+    .poster-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eee;
+        color: var(--muted);
+        width: 100%;
+        aspect-ratio: 2/3;
+    }
+
+    .fav-title {
+        font-size: 1.25rem;
+        padding: 1rem .9rem 0;
+        margin: 0;
+        text-align: center;
+        flex-grow: 1;
+        color: var(--text);
+    }
+
+    .fav-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem .9rem 1.2rem;
+    }
+
+    .details-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .details-link:hover {
+        text-decoration: underline;
+    }
+
+    .remove-btn {
+        padding: .45rem .95rem;
+        font-size: .95rem;
+        background: var(--danger);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: transform .25s ease;
+    }
+
+    .remove-btn:hover {
+        transform: scale(1.07);
+    }
+
+    .empty-msg {
+        color: var(--muted);
+        font-size: 1.2rem;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-in {
+        opacity: 0;
+        animation: fadeIn .55s ease forwards;
+    }
+</style>
+
 {% endblock %}

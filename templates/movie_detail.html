@@ -1,56 +1,161 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="font-size: 2.5rem; margin-bottom: 1rem;">{{ movie.title }}</h2>
+<div class="movie-container" style="max-width: 1000px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            color: black;
+            background-color: #f8f9fa;
+            /*padding: 0.8rem 1.5rem;*/
+            display: inline-block;
+            border-radius: 8px;
+            /*box-shadow: 0 4px 10px rgba(0,0,0,0.1);*/
+        ">{{ movie.title }}</h1>
 
-<p style="font-size: 1.3rem; color: #555; max-width: 800px;">{{ movie.overview }}</p>
+        <p style="font-size: 1.5rem; color: #555; line-height: 1.6; max-width: 800px; margin: 0 auto;">{{ movie.overview
+            }}</p>
+    </header>
 
-{% if movie.poster_path %}
-<img src="https://image.tmdb.org/t/p/w400{{ movie.poster_path }}" alt="Poster"
-     style="border-radius: 10px; margin: 1.5rem 0;">
-{% endif %}
+    <div class="movie-content" style="display: flex; flex-direction: column; align-items: center;">
+        {% if movie.poster_path %}
+        <div class="poster-container" style="margin-bottom: 2rem;">
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="Poster for {{ movie.title }}"
+                 style="border-radius: 12px; box-shadow: 0 10px 30px rgba(252,250,250,0.2); max-width: 100%;">
+        </div>
+        {% endif %}
 
-<div style="margin-top: 1rem; font-size: 1.2rem;">
-    {% if details %}
-    <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
-    <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
-    {% endif %}
+        <div class="movie-details"
+             style="width: 100%; background-color: #f8f9fa; padding: 2rem; border-radius: 12px; margin-bottom: 2.5rem;">
+            <div style="font-size: 1.5rem; line-height: 1.8;">
+                {% if details %}
+                <p><strong style="color: #2c3e50;">Rating:</strong> <span style="font-size: 1.6rem; color: #e67e22;">{{ details.vote_average }}</span>/10
+                    ({{ details.vote_count }} votes)</p>
+                <p><strong style="color: #2c3e50;">Runtime:</strong> {{ details.runtime }} minutes</p>
+                {% endif %}
 
-    {% if trailer_link %}
-    <p>
-        <strong>Trailer:</strong>
-        <a href="{{ trailer_link }}" target="_blank" style="color: #2980b9; font-weight: bold;">Watch on YouTube</a>
-    </p>
-    {% endif %}
+                {% if trailer_link %}
+                <p>
+                    <strong style="color: #2c3e50;">Trailer:</strong>
+                    <a href="{{ trailer_link }}" target="_blank"
+                       style="color: #3498db; font-weight: bold; text-decoration: none; transition: color 0.3s;">
+                        Watch on YouTube <span style="font-size: 1.2rem;">▶️</span>
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+
+            <button onclick="addFavorite({{ movie.id }})" style="
+                margin-top: 1.5rem;
+                padding: 1rem 2rem;
+                background-color: #e67e22;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.4rem;
+                font-weight: 600;
+                transition: background-color 0.3s;
+                box-shadow: 0 4px 6px rgba(246,245,245,0.1);
+            ">
+                ⭐ Add to Favorites
+            </button>
+        </div>
+
+        <div class="cast-crew" style="width: 100%; display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 3rem;">
+            <div class="cast" style="flex: 1; min-width: 300px;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1.5rem; color: #2c3e50; border-bottom: 3px solid #e67e22; padding-bottom: 0.5rem;">
+                    🎭 Cast
+                </h2>
+                <ul style="font-size: 1.4rem; line-height: 1.8; padding-left: 1.5rem;">
+                    {% for person in cast %}
+                    <li>{{ person.name }} <span style="color: #7f8c8d;">as</span> <strong>{{ person.character
+                        }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="crew" style="flex: 1; min-width: 300px;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1.5rem; color: #2c3e50; border-bottom: 3px solid #e67e22; padding-bottom: 0.5rem;">
+                    🎬 Crew
+                </h2>
+                <ul style="font-size: 1.4rem; line-height: 1.8; padding-left: 1.5rem;">
+                    {% for person in crew %}
+                    <li>{{ person.name }} <span style="color: #7f8c8d;">({{ person.job }})</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="reviews-section"
+             style="width: 100%; background-color: #f8f9fa; padding: 2rem; border-radius: 12px;">
+            <h2 style="font-size: 2.2rem; margin-bottom: 1.5rem; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 0.5rem;">
+                📝 Reviews
+            </h2>
+
+            <ul id="review-list" style="list-style: none; padding: 0;">
+                {% for r in reviews %}
+                <li style="margin: 1.5rem 0; padding: 1.5rem; background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1.6rem; font-weight: bold; color: #e67e22; margin-right: 0.5rem;">{{ r.rating }}/10</span>
+                        <div style="height: 6px; background-color: #eee; flex-grow: 1; border-radius: 3px;">
+                            <div style="height: 100%; width: {{ r.rating * 10 }}%; background-color: #e67e22; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 1.4rem; line-height: 1.6; margin: 1rem 0;">{{ r.text }}</p>
+                    <span style="color: #95a5a6; font-size: 1.1rem;">{{ r.created_at }}</span>
+                </li>
+                {% endfor %}
+                {% if not reviews %}
+                <p id="no-rev" style="color: #7f8c8d; font-size: 1.4rem; text-align: center; padding: 2rem;">No reviews
+                    yet. Be the first to share your thoughts!</p>
+                {% endif %}
+            </ul>
+
+            <form id="rev-form"
+                  style="margin-top: 2.5rem; display: none; background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: #2c3e50;">Write Your Review</h3>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 1.4rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">Rating
+                        (1-10):</label>
+                    <input type="number" min="1" max="10" id="rev-rating" required
+                           style="font-size: 1.4rem; padding: 0.8rem; width: 100%; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 1.4rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">Your
+                        Review:</label>
+                    <textarea id="rev-text" rows="5" placeholder="Share your thoughts about the movie..."
+                              style="font-size: 1.4rem; padding: 1rem; width: 100%; border: 1px solid #ddd; border-radius: 6px; resize: vertical;"
+                              required></textarea>
+                </div>
+
+                <button type="submit" style="
+                    padding: 1rem 1.5rem;
+                    background: #27ae60;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 1.4rem;
+                    font-weight: 600;
+                    transition: background-color 0.3s;
+                ">
+                    Submit Review
+                </button>
+            </form>
+
+            <p id="signin-reminder"
+               style="color: #7f8c8d; font-size: 1.4rem; text-align: center; margin-top: 2rem; display: none; padding: 1.5rem; background-color: #f1f1f1; border-radius: 8px;">
+                <a href="#" onclick="openLoginModal()"
+                   style="color: #3498db; text-decoration: none; font-weight: bold;">Sign in</a> to write a review and
+                share your thoughts about this movie.
+            </p>
+        </div>
+    </div>
 </div>
-
-<h3 style="font-size: 1.8rem; margin-top: 2rem;">🎭 Cast</h3>
-<ul style="font-size: 1.2rem;">
-    {% for person in cast %}
-    <li>{{ person.name }} as {{ person.character }}</li>
-    {% endfor %}
-</ul>
-
-<h3 style="font-size: 1.8rem; margin-top: 2rem;">🎬 Crew</h3>
-<ul style="font-size: 1.2rem;">
-    {% for person in crew %}
-    <li>{{ person.name }} ({{ person.job }})</li>
-    {% endfor %}
-</ul>
-
-<button
-        onclick="addFavorite({{ movie.id }})"
-        style="
-        margin-top: 2rem;
-        padding: 1rem 1.6rem;
-        background-color: #e67e22;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 1.2rem;
-    ">
-    ⭐ Add to Favorites
-</button>
 
 <script>
     function addFavorite(movieId) {
@@ -65,58 +170,51 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        alert(data.message || data.error || "Movie added to favorites!");
+                        // Show prettier notification instead of alert
+                        showNotification(data.message || "Movie added to favorites!");
                     })
                     .catch(err => {
                         console.error(err);
-                        alert("Failed to add favorite.");
+                        showNotification("Failed to add favorite.", "error");
                     });
             })
             .catch(function (error) {
-                alert("Sign in to use this feature!");
+                showNotification("Sign in to use this feature!", "error");
             });
     }
-</script>
 
-<hr style="margin:3rem 0;">
+    function showNotification(message, type = "success") {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '15px 20px';
+        notification.style.borderRadius = '8px';
+        notification.style.backgroundColor = type === 'success' ? '#27ae60' : '#e74c3c';
+        notification.style.color = 'white';
+        notification.style.fontSize = '1.2rem';
+        notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        notification.style.zIndex = '1000';
+        notification.style.transition = 'all 0.3s ease';
+        notification.innerText = message;
 
-<h3 style="font-size:1.8rem;">📝 Reviews</h3>
+        // Add to document
+        document.body.appendChild(notification);
 
-<ul id="review-list" style="list-style:none;padding:0;">
-    {% for r in reviews %}
-    <li style="margin:1rem 0;">
-        <strong>Rating:</strong> {{ r.rating }}/10<br>
-        <em>{{ r.text }}</em><br>
-        <span style="color:#888;font-size:0.9rem;">
-        {{ r.created_at }}
-      </span>
-    </li>
-    {% endfor %}
-    {% if not reviews %}
-    <p id="no-rev" style="color:#999;">No reviews yet.</p>
-    {% endif %}
-</ul>
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
 
-<!-- Always show the form but hidden by default -->
-<form id="rev-form" style="margin-top:1.5rem; display: none;">
-    <label>Rating (1-10):
-        <input type="number" min="1" max="10" id="rev-rating" required>
-    </label><br><br>
-    <textarea id="rev-text" rows="4" style="width:100%;" placeholder="Write your thoughts…" required></textarea><br>
-    <button type="submit"
-            style="padding:0.6rem 1.2rem;background:#27ae60;color:#fff;border:none;border-radius:6px;cursor:pointer;">
-        Submit Review
-    </button>
-</form>
+    function openLoginModal() {
+        alert("Please implement your login modal functionality here");
+    }
 
-<!-- Sign-in reminder if not logged in -->
-<!-- Sign-in reminder -->
-<p id="signin-reminder" style="color:#999; display:none;">
-  Sign in to write a review.
-</p>
-
-
-<script>
     document.getElementById('rev-form')?.addEventListener('submit', e => {
         e.preventDefault();
         const rating = document.getElementById('rev-rating').value;
@@ -135,41 +233,68 @@
         })
             .then(r => r.json())
             .then(({message, error}) => {
-                if (error) return alert(error);
+                if (error) {
+                    showNotification(error, "error");
+                    return;
+                }
+
+                // Show success message
+                showNotification(message || "Review added successfully!");
+
                 // prepend new review to list
                 document.getElementById('no-rev')?.remove();
+
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>Rating:</strong> ${rating}/10<br><em>${text}</em><br><span style="color:#888;font-size:0.9rem;">just now</span>`;
+                li.style.margin = '1.5rem 0';
+                li.style.padding = '1.5rem';
+                li.style.backgroundColor = 'white';
+                li.style.borderRadius = '8px';
+                li.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+
+                li.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 1.6rem; font-weight: bold; color: #e67e22; margin-right: 0.5rem;">${rating}/10</span>
+                    <div style="height: 6px; background-color: #eee; flex-grow: 1; border-radius: 3px;">
+                        <div style="height: 100%; width: ${rating * 10}%; background-color: #e67e22; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                <p style="font-size: 1.4rem; line-height: 1.6; margin: 1rem 0;">${text}</p>
+                <span style="color: #95a5a6; font-size: 1.1rem;">just now</span>
+            `;
+
                 document.getElementById('review-list').prepend(li);
                 document.getElementById('rev-text').value = '';
+                document.getElementById('rev-rating').value = '';
             })
-            .catch(console.error);
+            .catch(err => {
+                console.error(err);
+                showNotification("An error occurred. Please try again.", "error");
+            });
     });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-  const wait = setInterval(() => {
-    if (!window.firebase?.apps?.length) return;   // Firebase not ready yet
-    clearInterval(wait);
+    document.addEventListener('DOMContentLoaded', () => {
+        const wait = setInterval(() => {
+            if (!window.firebase?.apps?.length) return;   // Firebase not ready yet
+            clearInterval(wait);
 
-    const auth     = firebase.auth();
-    const form     = document.getElementById('rev-form');
-    const reminder = document.getElementById('signin-reminder');
+            const auth = firebase.auth();
+            const form = document.getElementById('rev-form');
+            const reminder = document.getElementById('signin-reminder');
 
-    function toggle(user) {
-      if (user) {
-        form.style.display = 'block';
-        reminder.style.display = 'none';
-      } else {
-        form.style.display = 'none';
-        reminder.style.display = 'block';
-      }
-    }
+            function toggle(user) {
+                if (user) {
+                    form.style.display = 'block';
+                    reminder.style.display = 'none';
+                } else {
+                    form.style.display = 'none';
+                    reminder.style.display = 'block';
+                }
+            }
 
-    toggle(auth.currentUser);        // immediate
-    auth.onAuthStateChanged(toggle); // future
-  }, 30);
-});
+            toggle(auth.currentUser);
+            auth.onAuthStateChanged(toggle);
+        }, 30);
+    });
 </script>
-
 {% endblock %}

@@ -1,13 +1,143 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="font-size:2.2rem;">Search results for “{{ query }}”</h2>
+
+<h2 class="sr-heading">
+    <span class="emoji">🔍</span>
+    <span class="sr-text">Search results for “{{ query }}”</span>
+    <span class="sr-count">({{ results|length }} shown&nbsp;of&nbsp;{{ total_results }})</span>
+</h2>
+
 {% if results %}
-  <div class="grid">
+<div class="sr-grid">
     {% for item in results %}
-      {% include "partials/card.html" with context %}
+    {% include "partials/card.html" with context %}
     {% endfor %}
-  </div>
-{% else %}
-  <p style="color:#999;">No matches found.</p>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pager">
+    {% if page > 1 %}
+    <a href="{{ url_for('search', q=query, year=year, genre=genre, page=page-1) }}"
+       class="pager-btn">&laquo;&nbsp;Prev</a>
+    {% endif %}
+    <span class="page-indicator">Page&nbsp;{{ page }} / {{ total_pages }}</span>
+    {% if page < total_pages %}
+    <a href="{{ url_for('search', q=query, year=year, genre=genre, page=page+1) }}"
+       class="pager-btn">Next&nbsp;&raquo;</a>
+    {% endif %}
+</div>
 {% endif %}
+
+{% else %}
+<div class="sr-empty">
+    <svg viewBox="0 0 64 64" class="sr-illu" aria-hidden="true">
+        <circle cx="28" cy="28" r="20" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="41" y1="41" x2="59" y2="59" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <p>No matches found.<br>Try a different title or keyword.</p>
+</div>
+{% endif %}
+
+<style>
+    :root {
+        --accent: #2ecc71;
+        --fg: #1a1a1a;
+        --fg-muted: #757575;
+        --card-bg: #fff;
+        --card-shadow: 0 6px 14px rgba(0, 0, 0, .12);
+        --hover-bg: #f5f5f5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --card-bg: #1e1f23;
+            --fg: #e8eaed;
+            --fg-muted: #9aa0a6;
+            --card-shadow: 0 8px 18px rgba(0, 0, 0, .26);
+            --hover-bg: #2a2b31;
+        }
+    }
+
+    .sr-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 1.6rem;
+        color: var(--fg);
+    }
+
+    .emoji {
+        font-size: 2.2rem;
+    }
+
+    .sr-text {
+        color: #000000;
+    }
+
+    .sr-count {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: var(--fg-muted);
+    }
+
+    .sr-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.6rem;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: transform .25s, box-shadow .25s;
+    }
+
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 14px 24px rgba(0, 0, 0, .18);
+    }
+
+    .sr-empty {
+        text-align: center;
+        color: var(--fg-muted);
+        margin: 3rem auto;
+        max-width: 320px;
+    }
+
+    .sr-illu {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1rem;
+        opacity: .7;
+    }
+
+    .pager {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.4rem;
+        margin: 2.4rem 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--fg-muted);
+    }
+
+    .pager-btn {
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: .45rem .9rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background .2s;
+    }
+
+    .pager-btn:hover {
+        background: var(--hover-bg);
+    }
+</style>
+
 {% endblock %}

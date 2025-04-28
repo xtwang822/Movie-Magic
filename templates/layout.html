@@ -1,102 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Movie Magic</title>
+  <meta charset="UTF-8" />
+  <title>Movie Magic</title>
 
-    <!-- Firebase v8 SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-    <!-- Your Firebase-config / auth handlers -->
-    <script defer src="{{ url_for('static', filename='firebase.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='firebase.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
 
-    <!-- Global helper functions (addFavorite, removeFavorite, etc.) -->
-    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <style>
+  :root{
+    font-size: 20px;
+  }
+  @media (max-width: 600px){
+    :root{font-size: 18px;}
+  }
 
-    <!-- Custom CSS -->
-    <style>
-  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;}
+  body{
+    margin:0;padding:0;
+    font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    background:#f9f9f9;
+    line-height:1.65;
+    color:#2c3e50;
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f9f9f9;
-            font-size: 18px;
-            line-height: 1.6;
-            color: #2c3e50;
-        }
+  h1{
+    margin:0;
+    padding:1.2rem 2.5rem;
+    background:#222;
+    color:#fff;
+    font-size:2.4rem;
+    letter-spacing:.5px;
+  }
 
-        h1 {
-            background: #222;
-            color: #fff;
-            padding: 1.5rem 2.5rem;
-            margin: 0;
-            font-size: 2.5rem;
-        }
+  nav{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:1.5rem;
+    padding:1rem 2.5rem;
+    background:#444;
+    font-size:1.25rem;
+  }
 
-        nav {
-            background: #444;
-            padding: 1rem 2.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2rem;
-        }
+  nav a{
+    color:#fff;text-decoration:none;position:relative;
+    padding:.25rem .4rem;
+  }
+  nav a:hover{text-decoration:underline;}
 
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin-right: 1.5rem;
-        }
+  #user-info{
+    color:#fff;font-style:italic;font-weight:500;
+    font-size:1.1rem;
+  }
 
-        nav a:hover {
-            text-decoration: underline;
-        }
+  .container{
+    max-width:1100px;
+    margin:auto;
+    padding:2.5rem 2rem;
+    font-size:1.15rem;
+  }
 
-        #user-info {
-            color: #fff;
-            font-style: italic;
-            font-weight: 500;
-            margin-left: 1rem;
-        }
 
-        .container {
-            padding: 2.5rem;
-            max-width: 1000px;
-            margin: auto;
-            font-size: 1.15rem;
-        }
+  button{
+    font-size:1.05rem;
+    padding:.45rem 1.1rem;
+    border:1px solid #2ecc71;
+    background:#2ecc71;
+    color:#fff;
+    border-radius:6px;
+    cursor:pointer;
+    transition:transform .25s ease,box-shadow .25s ease;
+  }
+  button:hover{
+    transform:scale(1.07);
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+  }
 
-        button {
-            transition: all .2s ease-in-out;
-            font-size: 1rem;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-        }
-    </style>
+  .grid{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:1.25rem;
+  }
+  </style>
 </head>
+
 <body>
-<h1>Movie Magic</h1>
+  <h1>Movie&nbsp;Magic</h1>
 
-<!--  <nav>-->
-<!--    <div><a href="/">Home</a></div>-->
-<!--    <span id="user-info"></span>-->
-<!--  </nav>-->
-
-<nav>
+  <nav>
     <div>
-        <a href="/">Home</a>
-        <a href="#" onclick="doSearch()">Search</a>
+      <a href="/">Home</a>
+      <a href="#" onclick="doSearch()">Search</a>
     </div>
     <span id="user-info"></span>
-</nav>
+  </nav>
 
-
-<div class="container">
+  <div class="container">
     {% block content %}{% endblock %}
-</div>
+  </div>
 </body>
 </html>

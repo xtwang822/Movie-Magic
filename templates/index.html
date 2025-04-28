@@ -1,100 +1,241 @@
+{# templates/index.html — 4 tabs, All paged, uniform layout #}
 {% extends "layout.html" %}
 {% block content %}
-<!--<h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-align: center;">🎬 Popular Movies</h2>-->
-<h2 style="font-size:2.5rem;text-align:center;">🔥 Trending Today</h2>
-<div class="grid">
-  {% for item in popular %}
-    {% include "partials/card.html" with context %}
-  {% endfor %}
-</div>
 
-<h2 style="font-size:2.5rem;text-align:center;margin-top:3rem;">🎯 Top-Rated</h2>
-<div class="grid">
-  {% for item in top_rated %}
-    {% include "partials/card.html" with context %}
-  {% endfor %}
-</div>
-
-<h2 style="font-size:2.5rem;text-align:center;margin-top:3rem;">🚀 Upcoming</h2>
-<div class="grid">
-  {% for item in upcoming %}
-    {% include "partials/card.html" with context %}
-  {% endfor %}
-</div>
-
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
-    {% for movie in movies %}
-    <div style="
-        flex: 1 1 calc(45%);
-        max-width: 500px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        border: 1px solid #ddd;
-        padding: 1rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        background-color: #fff;
-    ">
-        {% if movie.poster_path %}
-        <img
-            src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
-            alt="{{ movie.title }} poster"
-            style="border-radius: 10px; width: 100%; height: 600px; object-fit: cover; margin-bottom: 1rem;">
-        {% endif %}
-
-        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" style="text-decoration: none; color: #2c3e50;">
-            <strong style="font-size: 1.6rem;">{{ movie.title }}</strong>
-        </a>
-        <div style="color: #888; font-size: 1rem; margin: 0.4rem 0;">
-            {{ movie.release_date }}
-        </div>
-        <p style="margin-top: 0.5rem; min-height: 4rem; max-height: 6rem; overflow: hidden;">
-            {{ movie.overview|length > 150 and movie.overview[:150] ~ '...' or movie.overview }}
-        </p>
-
-        <button
-            onclick="addFavorite({{ movie.id }})"
-            style="
-                margin-top: auto;
-                padding: 0.8rem 1.4rem;
-                background-color: #e74c3c;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 1rem;
-                align-self: flex-start;
-            ">
-            ❤️ Add to Favorites
-        </button>
+<div class="tabs-container">
+    <div id="tab-trending" class="tab-item" onclick="showTab('trending')">
+        Trending&nbsp;Today
+        <div id="underline-trending" class="tab-underline"></div>
     </div>
-    {% endfor %}
+    <div id="tab-toprated" class="tab-item" onclick="showTab('toprated')">
+        Top-Rated
+        <div id="underline-toprated" class="tab-underline"></div>
+    </div>
+    <div id="tab-upcoming" class="tab-item" onclick="showTab('upcoming')">
+        Upcoming
+        <div id="underline-upcoming" class="tab-underline"></div>
+    </div>
+    <div id="tab-all" class="tab-item" onclick="showTab('all')">
+        All
+        <div id="underline-all" class="tab-underline"></div>
+    </div>
 </div>
+
+<div id="content-trending" class="movie-grid">
+    {% for item in popular %}{% include "partials/card.html" with context %}{% endfor %}
+</div>
+
+<div id="content-toprated" class="movie-grid">
+    {% for item in top_rated %}{% include "partials/card.html" with context %}{% endfor %}
+</div>
+
+<div id="content-upcoming" class="movie-grid">
+    {% for item in upcoming %}{% include "partials/card.html" with context %}{% endfor %}
+</div>
+
+{# ───── All — paginated list ───── #}
+<div id="content-all" class="movie-grid">
+    {% for item in all_page %}{% include "partials/card.html" with context %}{% endfor %}
+</div>
+
+{% if total_pages > 1 %}
+<div id="all-pager" class="pager"><!-- ▶ CHANGED: give an id -->
+    {% if page > 1 %}
+    <a href="{{ url_for('movies_all', page=page-1) }}#tab-all" class="pager-btn">&laquo;&nbsp;Prev</a>
+    {% endif %}
+    <span class="page-indicator">Page&nbsp;{{ page }} / {{ total_pages }}</span>
+    {% if page < total_pages %}
+    <a href="{{ url_for('movies_all', page=page+1) }}#tab-all" class="pager-btn">Next&nbsp;&raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<style>
+    :root {
+        --primary-color: #2ecc71;
+        --text-color: #222;
+        --light-text: #555;
+        --border-color: #e0e0e0;
+        --hover-bg: #f5f5f5;
+        --card-shadow: 0 6px 14px rgba(0, 0, 0, .12);
+        --radius: 14px;
+    }
+
+    /* Tabs */
+    .tabs-container {
+        display: flex;
+        justify-content: left;
+        gap: 3.5rem;
+        flex-wrap: nowrap;
+        width: 120%;
+        max-width: 2000px;
+        margin: 0 auto 3.5rem;
+        padding-bottom: .5rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: clamp(1.1rem, 1.1vw + 1rem, 1.6rem);
+        font-weight: 700;
+    }
+
+    /* On very small screens, tighten the gap so all four tabs still fit before scrolling */
+    @media (max-width: 600px) {
+        .tabs-container {
+            gap: 2rem;
+        }
+
+        .tab-item {
+            padding: 1rem 1.6rem;
+        }
+    }
+
+    .tab-item {
+        position: relative;
+        cursor: pointer;
+        color: var(--light-text);
+        padding: 1rem 2.4rem;
+        transition: color .25s;
+    }
+
+    .tab-item:hover, .tab-item.active {
+        color: var(--primary-color);
+    }
+
+    .tab-underline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -2px;
+        height: 4px;
+        background: var(--primary-color);
+        display: none;
+    }
+
+    /* Grids */
+    .movie-grid {
+        width: 96%;
+        max-width: 1800px;
+        margin-inline: auto;
+        display: grid;
+        grid-template-columns:repeat(3, 1fr);
+        gap: 2.4rem;
+    }
+
+    @media (max-width: 1100px) {
+        .movie-grid {
+            grid-template-columns:repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 650px) {
+        .movie-grid {
+            grid-template-columns:1fr;
+            gap: 1.8rem;
+        }
+    }
+
+    /* Cards */
+    .movie-card {
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: #fff;
+        box-shadow: var(--card-shadow);
+        transition: transform .3s, box-shadow .3s;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 16px 22px rgba(0, 0, 0, .18);
+    }
+
+    .movie-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        object-fit: cover;
+        display: block;
+    }
+
+    .movie-title {
+        padding: 1.4rem 1rem 1.8rem;
+        font-size: 1.35rem;
+        font-weight: 650;
+        text-align: center;
+        color: var(--text-color);
+        line-height: 1.3;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-in {
+        opacity: 0;
+        animation: fadeIn .55s ease forwards;
+    }
+
+    /* Visibility */
+    #content-toprated, #content-upcoming, #content-all, #content-trending {
+        display: none;
+    }
+
+    /* Pager */
+    .pager {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem; /* ▶ CHANGED: default none */
+        margin: 2.8rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--light-text);
+    }
+
+    .pager-btn {
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        padding: .45rem .9rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background .2s;
+    }
+
+    .pager-btn:hover {
+        background: var(--hover-bg);
+    }
+</style>
 
 <script>
-function addFavorite(movieId) {
-    firebase.auth().currentUser.getIdToken(true)
-      .then(function(idToken) {
-        fetch(`/favorite/${movieId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + idToken
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          alert(data.message || data.error || "Movie added to favorites!");
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Something went wrong. Try again!");
+    function showTab(tab) {
+        const tabs = ['trending', 'toprated', 'upcoming', 'all'];
+        tabs.forEach(t => {
+            const on = (t === tab);
+            document.getElementById(`content-${t}`).style.display = on ? 'grid' : 'none';
+            document.getElementById(`underline-${t}`).style.display = on ? 'block' : 'none';
+            document.getElementById(`tab-${t}`).classList.toggle('active', on);
         });
-      })
-      .catch(function(error) {
-        alert("Please sign in to add favorites!");
-      });
-}
+        /* ▶ CHANGED: show pager only for 'all' */
+        const pager = document.getElementById('all-pager');
+        if (pager) pager.style.display = (tab === 'all') ? 'flex' : 'none';
+
+        localStorage.setItem('activeMovieTab', tab);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const hash = location.hash.replace('#', '');
+        const firstTab = hash.startsWith('tab-') ? hash.slice(4)
+            : localStorage.getItem('activeMovieTab') || 'trending';
+        showTab(firstTab);
+        document.querySelectorAll('.movie-card').forEach((c, i) => {
+            c.style.animationDelay = `${i * 60}ms`;
+            c.classList.add('animate-in');
+        });
+    });
 </script>
+
 {% endblock %}
