@@ -1,6 +1,26 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-align: center;">🎬 Popular Movies</h2>
+<!--<h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-align: center;">🎬 Popular Movies</h2>-->
+<h2 style="font-size:2.5rem;text-align:center;">🔥 Trending Today</h2>
+<div class="grid">
+  {% for item in popular %}
+    {% include "partials/card.html" with context %}
+  {% endfor %}
+</div>
+
+<h2 style="font-size:2.5rem;text-align:center;margin-top:3rem;">🎯 Top-Rated</h2>
+<div class="grid">
+  {% for item in top_rated %}
+    {% include "partials/card.html" with context %}
+  {% endfor %}
+</div>
+
+<h2 style="font-size:2.5rem;text-align:center;margin-top:3rem;">🚀 Upcoming</h2>
+<div class="grid">
+  {% for item in upcoming %}
+    {% include "partials/card.html" with context %}
+  {% endfor %}
+</div>
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
     {% for movie in movies %}

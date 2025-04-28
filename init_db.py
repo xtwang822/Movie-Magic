@@ -10,15 +10,28 @@ def create_tables():
     c = conn.cursor()
 
     # Movies table
+    # c.execute("""
+    #     CREATE TABLE IF NOT EXISTS movies (
+    #         id INTEGER PRIMARY KEY,
+    #         title TEXT,
+    #         overview TEXT,
+    #         release_date TEXT,
+    #         poster_path TEXT
+    #     )
+    # """)
+
+    # Movies / TV table  (keep movie & TV together)
     c.execute("""
         CREATE TABLE IF NOT EXISTS movies (
-            id INTEGER PRIMARY KEY,
-            title TEXT,
-            overview TEXT,
+            id           INTEGER PRIMARY KEY,
+            title        TEXT,
+            overview     TEXT,
             release_date TEXT,
-            poster_path TEXT
+            poster_path  TEXT,
+            media_type   TEXT DEFAULT 'movie'
         )
     """)
+
 
     # Favorites table: references a movie's id and a user's Firebase UID
     c.execute("""
@@ -27,6 +40,17 @@ def create_tables():
             firebase_uid TEXT NOT NULL,
             movie_id INTEGER NOT NULL,
             UNIQUE(firebase_uid, movie_id)
+        )
+    """)
+
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS reviews (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            firebase_uid TEXT    NOT NULL,
+            movie_id     INTEGER NOT NULL,
+            rating       INTEGER CHECK(rating BETWEEN 1 AND 10),
+            text         TEXT,
+            created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
@@ -51,10 +75,18 @@ def fetch_and_store_popular_movies():
         poster_path = movie["poster_path"]  # e.g. "/path.jpg"
 
         # Insert or ignore if already exists
+        # c.execute("""
+        #     INSERT OR IGNORE INTO movies (id, title, overview, release_date, poster_path)
+        #     VALUES (?, ?, ?, ?, ?)
+        # """, (movie_id, title, overview, release_date, poster_path))
+
+        media_type = movie.get("media_type", "movie")
         c.execute("""
-            INSERT OR IGNORE INTO movies (id, title, overview, release_date, poster_path)
-            VALUES (?, ?, ?, ?, ?)
-        """, (movie_id, title, overview, release_date, poster_path))
+            INSERT OR IGNORE INTO movies
+            (id, title, overview, release_date, poster_path, media_type)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (movie_id, title, overview, release_date, poster_path, media_type))
+
 
     conn.commit()
     conn.close()

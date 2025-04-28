@@ -5,40 +5,41 @@
 <p style="font-size: 1.3rem; color: #555; max-width: 800px;">{{ movie.overview }}</p>
 
 {% if movie.poster_path %}
-    <img src="https://image.tmdb.org/t/p/w400{{ movie.poster_path }}" alt="Poster" style="border-radius: 10px; margin: 1.5rem 0;">
+<img src="https://image.tmdb.org/t/p/w400{{ movie.poster_path }}" alt="Poster"
+     style="border-radius: 10px; margin: 1.5rem 0;">
 {% endif %}
 
 <div style="margin-top: 1rem; font-size: 1.2rem;">
     {% if details %}
-        <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
-        <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
+    <p><strong>Rating:</strong> {{ details.vote_average }} ({{ details.vote_count }} votes)</p>
+    <p><strong>Runtime:</strong> {{ details.runtime }} minutes</p>
     {% endif %}
 
     {% if trailer_link %}
-        <p>
-            <strong>Trailer:</strong>
-            <a href="{{ trailer_link }}" target="_blank" style="color: #2980b9; font-weight: bold;">Watch on YouTube</a>
-        </p>
+    <p>
+        <strong>Trailer:</strong>
+        <a href="{{ trailer_link }}" target="_blank" style="color: #2980b9; font-weight: bold;">Watch on YouTube</a>
+    </p>
     {% endif %}
 </div>
 
 <h3 style="font-size: 1.8rem; margin-top: 2rem;">🎭 Cast</h3>
 <ul style="font-size: 1.2rem;">
     {% for person in cast %}
-        <li>{{ person.name }} as {{ person.character }}</li>
+    <li>{{ person.name }} as {{ person.character }}</li>
     {% endfor %}
 </ul>
 
 <h3 style="font-size: 1.8rem; margin-top: 2rem;">🎬 Crew</h3>
 <ul style="font-size: 1.2rem;">
     {% for person in crew %}
-        <li>{{ person.name }} ({{ person.job }})</li>
+    <li>{{ person.name }} ({{ person.job }})</li>
     {% endfor %}
 </ul>
 
 <button
-    onclick="addFavorite({{ movie.id }})"
-    style="
+        onclick="addFavorite({{ movie.id }})"
+        style="
         margin-top: 2rem;
         padding: 1rem 1.6rem;
         background-color: #e67e22;
@@ -52,28 +53,123 @@
 </button>
 
 <script>
-function addFavorite(movieId) {
-    firebase.auth().currentUser.getIdToken(true)
-      .then(function(idToken) {
-        fetch(`/favorite/${movieId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + idToken
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          alert(data.message || data.error || "Movie added to favorites!");
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Failed to add favorite.");
-        });
-      })
-      .catch(function(error) {
-        alert("Sign in to use this feature!");
-      });
-}
+    function addFavorite(movieId) {
+        firebase.auth().currentUser.getIdToken(true)
+            .then(function (idToken) {
+                fetch(`/favorite/${movieId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + idToken
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message || data.error || "Movie added to favorites!");
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Failed to add favorite.");
+                    });
+            })
+            .catch(function (error) {
+                alert("Sign in to use this feature!");
+            });
+    }
 </script>
+
+<hr style="margin:3rem 0;">
+
+<h3 style="font-size:1.8rem;">📝 Reviews</h3>
+
+<ul id="review-list" style="list-style:none;padding:0;">
+    {% for r in reviews %}
+    <li style="margin:1rem 0;">
+        <strong>Rating:</strong> {{ r.rating }}/10<br>
+        <em>{{ r.text }}</em><br>
+        <span style="color:#888;font-size:0.9rem;">
+        {{ r.created_at }}
+      </span>
+    </li>
+    {% endfor %}
+    {% if not reviews %}
+    <p id="no-rev" style="color:#999;">No reviews yet.</p>
+    {% endif %}
+</ul>
+
+<!-- Always show the form but hidden by default -->
+<form id="rev-form" style="margin-top:1.5rem; display: none;">
+    <label>Rating (1-10):
+        <input type="number" min="1" max="10" id="rev-rating" required>
+    </label><br><br>
+    <textarea id="rev-text" rows="4" style="width:100%;" placeholder="Write your thoughts…" required></textarea><br>
+    <button type="submit"
+            style="padding:0.6rem 1.2rem;background:#27ae60;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+        Submit Review
+    </button>
+</form>
+
+<!-- Sign-in reminder if not logged in -->
+<!-- Sign-in reminder -->
+<p id="signin-reminder" style="color:#999; display:none;">
+  Sign in to write a review.
+</p>
+
+
+<script>
+    document.getElementById('rev-form')?.addEventListener('submit', e => {
+        e.preventDefault();
+        const rating = document.getElementById('rev-rating').value;
+        const text = document.getElementById('rev-text').value.trim();
+        if (!rating || !text) return;
+
+        firebase.auth().currentUser.getIdToken(true).then(tok => {
+            return fetch('/review/{{ movie.id }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + tok
+                },
+                body: JSON.stringify({rating, text})
+            });
+        })
+            .then(r => r.json())
+            .then(({message, error}) => {
+                if (error) return alert(error);
+                // prepend new review to list
+                document.getElementById('no-rev')?.remove();
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Rating:</strong> ${rating}/10<br><em>${text}</em><br><span style="color:#888;font-size:0.9rem;">just now</span>`;
+                document.getElementById('review-list').prepend(li);
+                document.getElementById('rev-text').value = '';
+            })
+            .catch(console.error);
+    });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const wait = setInterval(() => {
+    if (!window.firebase?.apps?.length) return;   // Firebase not ready yet
+    clearInterval(wait);
+
+    const auth     = firebase.auth();
+    const form     = document.getElementById('rev-form');
+    const reminder = document.getElementById('signin-reminder');
+
+    function toggle(user) {
+      if (user) {
+        form.style.display = 'block';
+        reminder.style.display = 'none';
+      } else {
+        form.style.display = 'none';
+        reminder.style.display = 'block';
+      }
+    }
+
+    toggle(auth.currentUser);        // immediate
+    auth.onAuthStateChanged(toggle); // future
+  }, 30);
+});
+</script>
+
 {% endblock %}

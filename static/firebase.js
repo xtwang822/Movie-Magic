@@ -32,12 +32,6 @@ fetch('/firebase-config')
       console.error("Error loading Firebase config:", error);
   });
 
-
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
 firebase.auth().onAuthStateChanged((user) => {
     const userInfoDiv = document.getElementById("user-info");
 

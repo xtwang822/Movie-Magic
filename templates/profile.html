@@ -4,17 +4,27 @@
 
 {% if favorites and favorites|length > 0 %}
 <ul style="list-style-type: none; padding: 0;">
-    {% for fav in favorites %}
+  {% for fav in favorites %}
     <li style="margin-bottom: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 1rem;">
-        <strong style="font-size: 1.25rem;">{{ fav.title }}</strong><br>
-        {% if fav.poster_path %}
-            <img src="https://image.tmdb.org/t/p/w200{{ fav.poster_path }}" alt="Poster" style="margin: 0.5rem 0; border-radius: 10px;"><br>
-        {% endif %}
-        <a href="{{ url_for('movie_detail', movie_id=fav.id) }}" style="color: #2980b9;">View Details</a>
+      <strong style="font-size: 1.25rem;">{{ fav.title }}</strong><br>
+
+      {% if fav.poster_path %}
+        <img src="https://image.tmdb.org/t/p/w200{{ fav.poster_path }}"
+             alt="Poster"
+             style="margin: 0.5rem 0; border-radius: 10px;"><br>
+      {% endif %}
+
+      <a href="{{ url_for('movie_detail', movie_id=fav.id) }}" style="color: #2980b9;">View Details</a>
+
+      <button onclick="removeFavorite({{ fav.id }})"
+              style="margin-left: 1rem;padding:0.3rem 0.75rem;
+                     background:#e74c3c;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+        Remove
+      </button>
     </li>
-    {% endfor %}
+  {% endfor %}
 </ul>
 {% else %}
-<p style="color: #999;">You have no favorite movies yet. Go explore!</p>
+  <p style="color:#999;">You have no favorite movies yet. Go explore!</p>
 {% endif %}
 {% endblock %}

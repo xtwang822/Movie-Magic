@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2 style="font-size:2.2rem;">Search results for “{{ query }}”</h2>
+{% if results %}
+  <div class="grid">
+    {% for item in results %}
+      {% include "partials/card.html" with context %}
+    {% endfor %}
+  </div>
+{% else %}
+  <p style="color:#999;">No matches found.</p>
+{% endif %}
+{% endblock %}
